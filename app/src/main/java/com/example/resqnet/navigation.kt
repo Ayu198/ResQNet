@@ -186,5 +186,17 @@ fun navigation(
                 onDoneClick = {navController.navigate(Screen.LoginScreen.route)}
             )
         }
+        composable(Screen.PermissionCheckScreen.route) {
+            permissionCheckRoute(
+                navController = navController,
+                onContinueClick = {
+                    navController.navigate(Screen.HomeScreen.route) {
+                        popUpTo(Screen.FrontScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
     }
 }

@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -52,6 +53,9 @@ fun loginScreen(
     navController: NavController,
     onBackClick: () -> Unit
 ) {
+
+    val context = LocalContext.current
+
     val orangeStart = Color(0xFFFF7A00)
     val orangeEnd = Color(0xFFFFA24C)
     val screenBg = Color(0xFFFFF8F2)
@@ -285,7 +289,11 @@ fun loginScreen(
                     Button(
                         onClick = {
                             if (viewModel.validate()) {
-                                // TODO: Handle successful login
+                                if(isLocationReady(context) && isNotificationReady(context)) {
+                                    navController.navigate(Screen.HomeScreen.route)
+                                } else {
+                                    navController.navigate(Screen.PermissionCheckScreen.route)
+                                }
                             }
                         },
                         modifier = Modifier

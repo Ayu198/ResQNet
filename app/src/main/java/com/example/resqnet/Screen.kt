@@ -16,4 +16,5 @@ sealed class Screen(val route: String) {
     object CertificationUploadScreen : Screen("certificationUploadScreen")
     object VolunteerSignupOtpScreen : Screen("VolunteerSignupOtpScreen")
     object ApplicationSubmittedScreen : Screen("applicationSubmittedScreen")
+    object PermissionCheckScreen : Screen("permissionCheckScreen")
 }

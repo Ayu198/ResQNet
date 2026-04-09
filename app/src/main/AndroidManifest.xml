@@ -11,6 +11,8 @@
         android:supportsRtl="true"
         android:label="@string/app_name"
         android:theme="@style/Theme.ResQNet">
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+        <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
