@@ -22,7 +22,9 @@ fun navigation(
     forgotPasswordOtpViewModel: OtpViewModel = viewModel(),
     signupOtpViewModel: OtpViewModel = viewModel(),
     volunteerViewModel : VolunteerOnboardingViewModel = viewModel(),
-    otp : OtpViewModel = viewModel()
+    otp : OtpViewModel = viewModel(),
+    volunteerHomeScreenViewModel : VolunteerHomeViewModel = viewModel(),
+    userViewModel: UserHomeViewModel = viewModel()
 ) {
     NavHost(
         navController = navController,
@@ -111,7 +113,7 @@ fun navigation(
                 subtitle = "Enter the 6-digit code sent to your mobile number to complete signup.",
                 onBackClick = { navController.popBackStack() },
                 onVerifyOtp = {
-                    navController.navigate(Screen.HomeScreen.route) {
+                    navController.navigate(Screen.UserHomeScreen.route) {
                         popUpTo(Screen.FrontScreen.route) {
                             inclusive = true
                         }
@@ -136,8 +138,16 @@ fun navigation(
             )
         }
 
-        composable(Screen.HomeScreen.route) {
-            Text(text = "Home Screen")
+        composable(Screen.UserHomeScreen.route) {
+            userHomeScreen(
+                navController = navController,
+                viewModel = userViewModel,
+                onSosClick = {/*Todo*/},
+                onContactsClick = {/*Todo*/},
+                onHospitalsClick = {/*Todo*/},
+                onHistoryClick = {/*Todo*/},
+                onProfileClick = {/*Todo*/}
+            )
         }
         composable(Screen.SelectSkillScreen.route) {
             selectSkillsScreen(
@@ -190,12 +200,22 @@ fun navigation(
             permissionCheckRoute(
                 navController = navController,
                 onContinueClick = {
-                    navController.navigate(Screen.HomeScreen.route) {
+                    navController.navigate(Screen.VolunteerHomeScreen.route) {
                         popUpTo(Screen.FrontScreen.route) {
                             inclusive = true
                         }
                     }
                 }
+            )
+        }
+        composable (Screen.VolunteerHomeScreen.route) {
+            volunteerHomeScreen(
+                navController = navController,
+                viewModel = volunteerHomeScreenViewModel,
+                onViewAlertDetails = {/*Todo*/},
+                onAcceptAlert = {/*Todo*/},
+                onAlertsClick = {/*Todo*/},
+                onProfileClick = {/*Todo*/}
             )
         }
     }

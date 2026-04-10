@@ -290,7 +290,7 @@ fun loginScreen(
                         onClick = {
                             if (viewModel.validate()) {
                                 if(isLocationReady(context) && isNotificationReady(context)) {
-                                    navController.navigate(Screen.HomeScreen.route)
+                                    navController.navigate(Screen.VolunteerHomeScreen.route)
                                 } else {
                                     navController.navigate(Screen.PermissionCheckScreen.route)
                                 }
