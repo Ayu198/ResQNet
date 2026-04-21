@@ -1,6 +1,6 @@
 package com.example.resqnet.auth.model
 
-data class SignupResponse(
+data class SignupUserResponse(
     val userId:Long,
     val fullName : String,
     val phoneNumber : String,
