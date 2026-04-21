@@ -1,4 +1,4 @@
-package com.example.resqnet.auth
+package com.example.resqnet.auth.model
 
 data class LoginResponse (
     val token:String,

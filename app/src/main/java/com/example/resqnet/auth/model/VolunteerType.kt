@@ -1,4 +1,4 @@
-package com.example.resqnet.auth
+package com.example.resqnet.auth.model
 
 enum class VolunteerType {
     VERIFIED_MEDICAL,
