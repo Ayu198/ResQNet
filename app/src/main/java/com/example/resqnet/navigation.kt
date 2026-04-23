@@ -88,22 +88,37 @@ fun navigation(
                 onBackClick = { navController.popBackStack() },
                 onSendOtp = {
                     forgotPasswordOtpViewModel.clearOtp()
+                    forgotPasswordOtpViewModel.configure(
+                        phoneNumber = forgotPasswordViewModel.phone,
+                        purpose = OtpPurpose.FORGOT_PASSWORD
+                    )
                     navController.navigate(Screen.ForgotPasswordOtpScreen.route)
                 }
             )
         }
 
+
         composable(Screen.ForgotPasswordOtpScreen.route) {
+            val context = LocalContext.current
+
+            LaunchedEffect(forgotPasswordOtpViewModel.verificationSuccess) {
+                if (forgotPasswordOtpViewModel.verificationSuccess) {
+                    navController.navigate(Screen.ResetPasswordScreen.route)
+                    forgotPasswordOtpViewModel.consumeVerificationSuccess()
+                    forgotPasswordOtpViewModel.clearOtp()
+                }
+            }
+
             otpVerificationScreen(
                 viewModel = forgotPasswordOtpViewModel,
                 title = "Verify code",
                 subtitle = "Enter the 6-digit code sent to your registered mobile number.",
                 onBackClick = { navController.popBackStack() },
                 onVerifyOtp = {
-                    navController.navigate(Screen.ResetPasswordScreen.route)
+                    forgotPasswordOtpViewModel.verifyOtp(context)
                 },
                 onResendOtp = {
-                    // resend forgot-password OTP
+                    forgotPasswordOtpViewModel.sendOtp(context)
                 }
             )
         }
@@ -152,7 +167,9 @@ fun navigation(
                 onBackClick = { navController.popBackStack() },
                 onPasswordUpdated = {
                     navController.navigate(Screen.LoginScreen.route) {
-                        popUpTo(Screen.FrontScreen.route)
+                        popUpTo(Screen.FrontScreen.route) {
+                            inclusive = false
+                        }
                     }
                 }
             )

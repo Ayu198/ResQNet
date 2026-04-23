@@ -2,6 +2,9 @@ package com.example.resqnet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -56,6 +59,15 @@ fun forgotPasswordScreen(
     val textPrimary = Color(0xFF2F241D)
     val textSecondary = Color(0xFF6E6258)
     val hintColor = Color(0xFF8C7E72)
+
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel.forgotPasswordSuccess) {
+        if (viewModel.forgotPasswordSuccess) {
+            onSendOtp()
+            viewModel.consumeForgotPasswordSuccess()
+        }
+    }
 
     Scaffold(
         containerColor = screenBg,
@@ -188,6 +200,15 @@ fun forgotPasswordScreen(
                                     modifier = Modifier.padding(top = 4.dp, start = 4.dp)
                                 )
                             }
+                            if (viewModel.apiError != null) {
+                                Text(
+                                    text = viewModel.apiError!!,
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                                )
+                            }
+
                         }
                     }
 
@@ -195,16 +216,26 @@ fun forgotPasswordScreen(
 
                     Button(
                         onClick = {
-                            if (viewModel.validatePhone()) onSendOtp()
+                            viewModel.forgotPassword(context)
                         },
+                        enabled = !viewModel.isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(22.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = orangeStart)
                     ) {
-                        Text("Send OTP", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        if (viewModel.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.height(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Send OTP", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
+
 
                     Spacer(modifier = Modifier.height(10.dp))
 

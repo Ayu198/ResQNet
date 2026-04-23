@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -52,6 +56,17 @@ fun resetPasswordScreen(
     val textSecondary = Color(0xFF6E6258)
     val textPrimary = Color(0xFF2F241D)
     val hintColor = Color(0xFF8C7E72)
+
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel.resetPasswordSuccess) {
+        if (viewModel.resetPasswordSuccess) {
+            onPasswordUpdated()
+            viewModel.consumeResetPasswordSuccess()
+            viewModel.clearResetFields()
+        }
+    }
+
 
     Scaffold(
         containerColor = screenBg,
@@ -180,20 +195,39 @@ fun resetPasswordScreen(
                         )
                     }
 
+                    if (viewModel.apiError != null) {
+                        Text(
+                            text = viewModel.apiError!!,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = {
-                            if (viewModel.validatePasswordReset()) onPasswordUpdated()
+                            viewModel.resetPassword(context)
                         },
+                        enabled = !viewModel.isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(22.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = orangeStart)
                     ) {
-                        Text("Update password", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        if (viewModel.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.height(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Update password", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
+
                 }
             }
         }
