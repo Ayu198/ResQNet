@@ -1,9 +1,15 @@
 package com.example.resqnet
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.resqnet.auth.repository.ApiResult
+import com.example.resqnet.auth.repository.AuthRepository
+import com.example.resqnet.auth.network.RetrofitProvider
+import kotlinx.coroutines.launch
 
 class SignupViewModel : ViewModel() {
 
@@ -49,34 +55,49 @@ class SignupViewModel : ViewModel() {
     var userTypeError by mutableStateOf<String?>(null)
         private set
 
+    var apiError by mutableStateOf<String?>(null)
+        private set
+
+    var isLoading by mutableStateOf(false)
+        private set
+
+    var signupSuccess by mutableStateOf(false)
+        private set
+
     fun onFullNameChange(value: String) {
         fullName = value
         if (fullNameError != null) fullNameError = null
+        if (apiError != null) apiError = null
     }
 
     fun onEmailChange(value: String) {
         email = value
         if (emailError != null) emailError = null
+        if (apiError != null) apiError = null
     }
 
     fun onPhoneChange(value: String) {
         phone = value.filter { it.isDigit() }.take(10)
         if (phoneError != null) phoneError = null
+        if (apiError != null) apiError = null
     }
 
     fun onPasswordChange(value: String) {
         password = value
         if (passwordError != null) passwordError = null
+        if (apiError != null) apiError = null
     }
 
     fun onConfirmPasswordChange(value: String) {
         confirmPassword = value
         if (confirmPasswordError != null) confirmPasswordError = null
+        if (apiError != null) apiError = null
     }
 
     fun onUserTypeChange(value: String) {
         userType = value
         if (userTypeError != null) userTypeError = null
+        if (apiError != null) apiError = null
     }
 
     fun onPasswordVisibilityChange() {
@@ -136,5 +157,44 @@ class SignupViewModel : ViewModel() {
         }
 
         return isValid
+    }
+
+    fun signupUser(context: Context) {
+        if (!validateSignup()) return
+        if (userType != "USER") return
+
+        viewModelScope.launch {
+            isLoading = true
+            apiError = null
+            signupSuccess = false
+
+            val appContext = context.applicationContext
+            val authRepository = AuthRepository(
+                RetrofitProvider.provideAuthApiService(appContext)
+            )
+
+            when (
+                val result = authRepository.signupUser(
+                    fullName = fullName.trim(),
+                    phoneNumber = phone,
+                    email = email.trim(),
+                    password = password
+                )
+            ) {
+                is ApiResult.Success -> {
+                    signupSuccess = true
+                }
+
+                is ApiResult.Error -> {
+                    apiError = result.message
+                }
+            }
+
+            isLoading = false
+        }
+    }
+
+    fun consumeSignupSuccess() {
+        signupSuccess = false
     }
 }

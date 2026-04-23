@@ -3,6 +3,10 @@ package com.example.resqnet
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -68,6 +72,7 @@ fun signupScreen(
     onBackClick: () -> Unit
 ) {
     var showVolunteerTypeSheet by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val blurAmount by animateDpAsState(
         targetValue = if (showVolunteerTypeSheet) 16.dp else 0.dp,
@@ -85,6 +90,13 @@ fun signupScreen(
     val textPrimary = Color(0xFF2F241D)
     val textSecondary = Color(0xFF6E6258)
     val hintColor = Color(0xFF8C7E72)
+
+    LaunchedEffect(viewModel.signupSuccess) {
+        if (viewModel.signupSuccess) {
+            navController.navigate(Screen.SignupOtpScreen.route)
+            viewModel.consumeSignupSuccess()
+        }
+    }
 
     Scaffold(
         containerColor = screenBg,
@@ -348,6 +360,14 @@ fun signupScreen(
                                 modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                             )
                         }
+                        if (viewModel.apiError != null) {
+                            Text(
+                                text = viewModel.apiError!!,
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(28.dp))
 
@@ -357,10 +377,11 @@ fun signupScreen(
                                     if (viewModel.userType == "VOLUNTEER") {
                                         showVolunteerTypeSheet = true
                                     } else {
-                                        navController.navigate(Screen.SignupOtpScreen.route)
+                                        viewModel.signupUser(context)
                                     }
                                 }
                             },
+                            enabled = !viewModel.isLoading,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(58.dp),
@@ -369,13 +390,22 @@ fun signupScreen(
                                 containerColor = orangeStart
                             )
                         ) {
-                            Text(
-                                text = if (viewModel.userType == "VOLUNTEER") "Next" else "Create account",
-                                color = Color.White,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            if (viewModel.isLoading) {
+                                CircularProgressIndicator(
+                                    color = Color.White,
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = if (viewModel.userType == "VOLUNTEER") "Next" else "Create account",
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
+
 
                         Spacer(modifier = Modifier.height(16.dp))
                     }

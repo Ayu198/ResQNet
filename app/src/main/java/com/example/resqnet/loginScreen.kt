@@ -1,7 +1,8 @@
 package com.example.resqnet
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,7 +55,44 @@ fun loginScreen(
     onBackClick: () -> Unit
 ) {
 
+    // fetching who is the user
     val context = LocalContext.current
+    LaunchedEffect(viewModel.loginDestination) {
+        when (viewModel.loginDestination) {
+            LoginDestination.USER_HOME -> {
+                navController.navigate(Screen.UserHomeScreen.route) {
+                    popUpTo(Screen.FrontScreen.route) {
+                        inclusive = true
+                    }
+                }
+                viewModel.clearNavigationDestination()
+            }
+
+            LoginDestination.VOLUNTEER_HOME -> {
+                if (isLocationReady(context) && isNotificationReady(context)) {
+                    navController.navigate(Screen.VolunteerHomeScreen.route) {
+                        popUpTo(Screen.FrontScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                } else {
+                    navController.navigate(Screen.PermissionCheckScreen.route)
+                }
+                viewModel.clearNavigationDestination()
+            }
+
+            LoginDestination.VOLUNTEER_PENDING -> {
+                navController.navigate(Screen.ApplicationSubmittedScreen.route) {
+                    popUpTo(Screen.FrontScreen.route) {
+                        inclusive = true
+                    }
+                }
+                viewModel.clearNavigationDestination()
+            }
+
+            null -> Unit
+        }
+    }
 
     val orangeStart = Color(0xFFFF7A00)
     val orangeEnd = Color(0xFFFFA24C)
@@ -284,18 +322,23 @@ fun loginScreen(
                         )
                     }
 
+                    //backend checking if any error or not
+                    if (viewModel.apiError != null) {
+                        Text(
+                            text = viewModel.apiError!!,
+                            color = Color.Red,
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
                         onClick = {
-                            if (viewModel.validate()) {
-                                if(isLocationReady(context) && isNotificationReady(context)) {
-                                    navController.navigate(Screen.VolunteerHomeScreen.route)
-                                } else {
-                                    navController.navigate(Screen.PermissionCheckScreen.route)
-                                }
-                            }
+                            viewModel.login(context)
                         },
+                        enabled = !viewModel.isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
@@ -304,13 +347,22 @@ fun loginScreen(
                             containerColor = orangeStart
                         )
                     ) {
-                        Text(
-                            text = "Log in",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        if (viewModel.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = "Log in",
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
+
 
                     Spacer(modifier = Modifier.height(20.dp))
 

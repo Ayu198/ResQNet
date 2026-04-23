@@ -2,6 +2,8 @@ package com.example.resqnet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.CircularProgressIndicator
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -167,27 +169,41 @@ fun otpVerificationScreen(
                             modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                         )
                     }
+                    if (viewModel.apiError != null) {
+                        Text(
+                            text = viewModel.apiError!!,
+                            color = Color.Red,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                        )
+                    }
+
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = {
-                            if (viewModel.validateOtp()) {
-                                onVerifyOtp()
-                            }
-                        },
+                        onClick = onVerifyOtp,
+                        enabled = !viewModel.isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(22.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = orangeStart)
                     ) {
-                        Text(
-                            text = buttonText,
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        if (viewModel.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = buttonText,
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))

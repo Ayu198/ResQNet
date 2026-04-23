@@ -5,7 +5,9 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.resqnet.auth.model.OtpPurpose
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -107,20 +109,38 @@ fun navigation(
         }
 
         composable(Screen.SignupOtpScreen.route) {
+            val context = LocalContext.current
+
+            LaunchedEffect(Unit) {
+                signupOtpViewModel.configure(
+                    phoneNumber = signupViewModel.phone,
+                    purpose = OtpPurpose.SIGNUP
+                )
+                signupOtpViewModel.sendOtp(context)
+            }
+
+            LaunchedEffect(signupOtpViewModel.verificationSuccess) {
+                if (signupOtpViewModel.verificationSuccess) {
+                    navController.navigate(Screen.LoginScreen.route) {
+                        popUpTo(Screen.FrontScreen.route) {
+                            inclusive = false
+                        }
+                    }
+                    signupOtpViewModel.consumeVerificationSuccess()
+                    signupOtpViewModel.clearOtp()
+                }
+            }
+
             otpVerificationScreen(
                 viewModel = signupOtpViewModel,
                 title = "Verify account",
                 subtitle = "Enter the 6-digit code sent to your mobile number to complete signup.",
                 onBackClick = { navController.popBackStack() },
                 onVerifyOtp = {
-                    navController.navigate(Screen.UserHomeScreen.route) {
-                        popUpTo(Screen.FrontScreen.route) {
-                            inclusive = true
-                        }
-                    }
+                    signupOtpViewModel.verifyOtp(context)
                 },
                 onResendOtp = {
-                    // resend signup OTP
+                    signupOtpViewModel.sendOtp(context)
                 }
             )
         }
